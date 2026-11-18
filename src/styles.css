@@ -468,13 +468,23 @@ button.text-link { font-weight: 700; }
   --arch-inset: .29;
   position: relative; height: clamp(440px, 82svh, 860px);
 }
-.place-mask { position: absolute; pointer-events: none; }
 .place-window {
   position: absolute; inset: 0; overflow: hidden; background: var(--forest-deep);
   transform: translateZ(0); backface-visibility: hidden;
 }
-.motion-on .place-window { clip-path: url(#place-arches); }
-.motion-on .place-figure.is-panorama .place-window { clip-path: none; }
+.place-shutters { display: none; position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.motion-on .place-shutters { display: block; }
+.motion-on .place-figure:not(.is-arch-ready) .place-window { visibility: hidden; }
+.place-shutters > * { position: absolute; top: 0; transform-origin: 0 0; will-change: transform; backface-visibility: hidden; }
+.place-cover-side, .place-cover-centre {
+  width: 1px; height: 100%;
+  background: linear-gradient(to bottom, var(--ivory) 0 50%, var(--forest) 50% 100%);
+}
+.place-cover-left { left: 0; }
+.place-cover-right { right: 0; transform-origin: 100% 0; }
+.place-cover-centre { left: 50%; }
+.place-cover-top { left: 50%; width: 50%; height: 1px; background: var(--ivory); }
+.place-shutters .place-cover-corner { left: 0; width: 512px; height: 512px; max-width: none; fill: var(--ivory); }
 .place-media { position: absolute; inset: 0; }
 .place-media img { object-position: 50% 58%; transform: none; }
 .place-window::after {
