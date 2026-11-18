@@ -114,7 +114,9 @@ export function initMotion(): () => void {
 
     const updatePlace = (progress: number) => {
       if (!place || !arches) return
-      const k = clamp((progress - .14) * 2.6)
+      const progressInRange = clamp((progress - .14) * 2.6)
+      // Ease into and out of the arch endpoints without changing their scroll range.
+      const k = progressInRange * progressInRange * (3 - 2 * progressInRange)
       const edge = (1 - k) * placeInset
       // Both arches clip ONE stationary image. A subpixel overlap removes the centre seam.
       const gap = ((1 - k) * 8 - k * .5) / placeWidth
@@ -148,7 +150,7 @@ export function initMotion(): () => void {
 
     const tick = (time = performance.now()) => {
       frame = 0
-      const elapsed = previousFrame ? Math.min(time - previousFrame, 50) : 16.67
+      const elapsed = previousFrame && time - previousFrame < 100 ? Math.min(time - previousFrame, 50) : 16.67
       previousFrame = time
       const vh = window.innerHeight
       const max = document.documentElement.scrollHeight - vh
@@ -160,9 +162,9 @@ export function initMotion(): () => void {
       let settling = false
       for (const [el, state] of tracked) {
         const target = measure(el)
-        const ease = el === place ? 1 - Math.exp(-elapsed / 105) : .14
+        const ease = el === place ? 1 - Math.exp(-elapsed / 160) : .14
         let next = state.value + (target - state.value) * ease
-        if (Math.abs(target - next) < 0.0008) next = target
+        if (Math.abs(target - next) < (el === place ? 0.0002 : 0.0008)) next = target
         else settling = true
         if (next !== state.value || !el.style.getPropertyValue('--p')) {
           state.value = next
