@@ -218,16 +218,18 @@ main:focus-visible, h2:focus-visible { outline: none; }
 .menu-glyph {
   position: relative; display: block; width: 48px; height: 48px;
   border: 1px solid rgb(23 61 54 / .28); border-radius: 50%;
-  transition: background-color 400ms var(--ease-out), border-color 400ms var(--ease-out), transform 600ms var(--ease-out);
+  background: var(--forest); color: var(--ivory);
+  transition: background-color 420ms ease, border-color 420ms ease, color 420ms ease;
 }
 .menu-glyph i {
-  position: absolute; left: 14px; top: 20px; width: 20px; height: 1.5px; border-radius: 2px;
-  background: currentColor; transform-origin: center;
-  transition: transform 550ms var(--ease-out), width 450ms var(--ease-out);
+  position: absolute; left: calc(50% - 10px); top: calc(50% - 1px); width: 20px; height: 2px; border-radius: 2px;
+  background: currentColor; transform-origin: center; transform: translateY(-4px) rotate(0);
+  transition: transform 420ms cubic-bezier(.4, 0, .2, 1);
 }
-.menu-glyph i + i { top: 27px; width: 12px; }
-.menu-trigger:hover .menu-glyph { background: var(--forest); border-color: var(--forest); color: var(--ivory); }
-.menu-trigger:hover .menu-glyph i + i { width: 20px; }
+.menu-glyph i + i { transform: translateY(4px) rotate(0); }
+@media (hover: hover) {
+  .menu-trigger:hover .menu-glyph { border-color: var(--brass); }
+}
 .menu-trigger:focus-visible { outline: none; }
 .menu-trigger:focus-visible .menu-glyph { outline: 2px solid currentColor; outline-offset: 3px; }
 
@@ -236,31 +238,38 @@ main:focus-visible, h2:focus-visible { outline: none; }
 .navigation-dialog {
   position: fixed; inset: 0 0 auto; width: 100%; max-width: none; height: auto; max-height: 100dvh;
   margin: 0; padding: 0; border: 0; background: transparent; color: var(--ivory); overflow: visible;
-  transition: display 700ms allow-discrete, overlay 700ms allow-discrete;
 }
 .navigation-dialog::backdrop {
   background: rgb(11 35 31 / 0);
-  transition: background-color 500ms var(--ease-out), display 700ms allow-discrete, overlay 700ms allow-discrete;
+  transition: background-color 420ms ease;
 }
-.navigation-dialog[open]::backdrop { background: rgb(11 35 31 / .5); }
+.navigation-dialog[data-expanded="true"]::backdrop { background: rgb(11 35 31 / .5); }
 .menu-panel {
-  max-height: 100dvh; overflow-y: auto; overscroll-behavior: contain;
+  max-height: calc(100dvh - var(--header-height)); overflow-y: auto; overscroll-behavior: contain;
   background: var(--forest-deep);
-  clip-path: inset(0 0 0 0);
-  transition: clip-path 800ms var(--ease-out);
+  clip-path: inset(0 0 100% 0);
+  transition: clip-path 420ms cubic-bezier(.4, 0, .2, 1);
 }
-.navigation-dialog:not([open]) .menu-panel { clip-path: inset(0 0 100% 0); transition: clip-path 500ms var(--ease-in-out) 60ms; }
-
+.navigation-dialog[data-expanded="true"] .menu-panel { clip-path: inset(0); transition-duration: 560ms; }
+.menu-top { background: var(--ivory); transition: background-color 420ms ease; }
+.navigation-dialog[data-expanded="true"] .menu-top { background: var(--forest-deep); }
 .menu-shell { display: flex; flex-direction: column; }
 .menu-header {
   display: flex; align-items: center; justify-content: space-between;
-  min-height: var(--header-height); border-bottom: 1px solid var(--rule-dark);
+  min-height: var(--header-height); border-bottom: 1px solid var(--rule);
+  transition: border-color 420ms ease;
 }
-.menu-close { color: var(--ivory); }
-.menu-close .menu-glyph { border-color: rgb(195 203 181 / .4); }
-.menu-close .menu-glyph i { top: 23px; width: 20px; transform: rotate(45deg); }
-.menu-close .menu-glyph i + i { top: 23px; transform: rotate(-45deg); }
-.menu-close:hover .menu-glyph { background: var(--ivory); border-color: var(--ivory); color: var(--forest); transform: rotate(90deg); }
+.menu-header .brand { position: relative; }
+.menu-header .brand > .logo, .menu-header .brand > span { transition: opacity 420ms ease; }
+.menu-header .brand > span { position: absolute; inset: 0; opacity: 0; }
+.menu-close { transition: color 420ms ease; }
+.navigation-dialog[data-expanded="true"] .menu-header { border-color: var(--rule-dark); }
+.navigation-dialog[data-expanded="true"] .brand > .logo { opacity: 0; }
+.navigation-dialog[data-expanded="true"] .brand > span { opacity: 1; }
+.navigation-dialog[data-expanded="true"] .menu-close { color: var(--ivory); }
+.navigation-dialog[data-expanded="true"] .menu-glyph { background: var(--ivory); color: var(--forest); }
+.navigation-dialog[data-expanded="true"] .menu-glyph i { transform: translateY(0) rotate(45deg); }
+.navigation-dialog[data-expanded="true"] .menu-glyph i + i { transform: translateY(0) rotate(-45deg); }
 
 .menu-body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(220px, 300px); gap: clamp(32px, 7vw, 120px); padding-block: clamp(18px, 3vh, 34px); }
 .menu-navigation { display: grid; counter-reset: menu; }
@@ -270,19 +279,19 @@ main:focus-visible, h2:focus-visible { outline: none; }
 }
 .menu-navigation a::after {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; background: var(--rule-dark);
-  transform-origin: left; transition: transform 900ms var(--ease-out) calc(120ms + var(--i) * 70ms);
+  transform-origin: left; transition: transform 560ms var(--ease-out) calc(60ms + var(--i) * 45ms);
 }
 .menu-index {
   color: var(--brass-light); font-family: var(--font-display); font-size: 12px; font-weight: 500;
   letter-spacing: .08em; font-variant-numeric: tabular-nums;
-  transition: opacity 600ms var(--ease-out) calc(200ms + var(--i) * 70ms);
+  transition: opacity 420ms var(--ease-out) calc(100ms + var(--i) * 45ms);
 }
 .menu-label { display: block; overflow: clip; padding-bottom: .08em; margin-bottom: -.08em; }
 .menu-label > span {
   display: inline-block;
   font-family: var(--font-display); font-size: clamp(30px, 3.5vw, 52px); font-weight: 500; font-stretch: 88%;
   line-height: 1.08; letter-spacing: -.035em;
-  transition: transform 850ms var(--ease-out) calc(140ms + var(--i) * 70ms), color 300ms;
+  transition: transform 560ms var(--ease-out) calc(80ms + var(--i) * 45ms), color 300ms;
 }
 .menu-navigation a:hover .menu-label > span { color: var(--brass-light); }
 .menu-navigation a[aria-current] .menu-label > span { font-style: italic; font-weight: 400; }
@@ -291,14 +300,14 @@ main:focus-visible, h2:focus-visible { outline: none; }
 .menu-navigation a:hover .arrow, .menu-navigation a:focus-visible .arrow { transform: rotate(0); }
 .menu-navigation a:focus-visible { outline-offset: -2px; }
 
-.navigation-dialog:not([open]) .menu-label > span { transform: translateY(105%); transition-duration: 300ms; transition-delay: 0ms; }
-.navigation-dialog:not([open]) .menu-navigation a::after { transform: scaleX(0); transition-duration: 300ms; transition-delay: 0ms; }
-.navigation-dialog:not([open]) :is(.menu-index, .menu-navigation .arrow) { opacity: 0; transition-duration: 200ms; transition-delay: 0ms; }
+.navigation-dialog:not([data-expanded="true"]) .menu-label > span { transform: translateY(120%); transition-duration: 220ms; transition-delay: 0ms; }
+.navigation-dialog:not([data-expanded="true"]) .menu-navigation a::after { transform: scaleX(0); transition-duration: 220ms; transition-delay: 0ms; }
+.navigation-dialog:not([data-expanded="true"]) :is(.menu-index, .menu-navigation .arrow) { opacity: 0; transition-duration: 180ms; transition-delay: 0ms; }
 
 .menu-aside { display: grid; align-content: start; gap: 22px; }
 .menu-photo { aspect-ratio: 1.05; border-radius: 999px 999px 0 0; overflow: hidden; border-bottom: 2px solid var(--brass); }
-.menu-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 32% 50%; transform: scale(1.08); transition: transform 1400ms var(--ease-out) 150ms; }
-.navigation-dialog[open] .menu-photo img { transform: scale(1); }
+.menu-photo img { width: 100%; height: 100%; object-fit: cover; object-position: 32% 50%; transform: scale(1.04); transition: transform 420ms var(--ease-out); }
+.navigation-dialog[data-expanded="true"] .menu-photo img { transform: scale(1); transition-duration: 700ms; }
 .menu-contact { display: grid; gap: 6px; font-style: normal; font-size: 14px; color: var(--sage-light); }
 .menu-contact a { width: fit-content; text-underline-offset: 4px; text-decoration-color: rgb(195 203 181 / .4); }
 .menu-contact a:hover { color: var(--ivory); }
@@ -310,15 +319,6 @@ main:focus-visible, h2:focus-visible { outline: none; }
 }
 .menu-footer p { display: flex; align-items: center; gap: 12px; }
 .menu-footer .text-link { font-size: 14px; }
-
-@starting-style {
-  .navigation-dialog[open] .menu-panel { clip-path: inset(0 0 100% 0); }
-  .navigation-dialog[open]::backdrop { background: rgb(11 35 31 / 0); }
-  .navigation-dialog[open] .menu-label > span { transform: translateY(105%); }
-  .navigation-dialog[open] .menu-navigation a::after { transform: scaleX(0); }
-  .navigation-dialog[open] :is(.menu-index, .menu-navigation .arrow) { opacity: 0; }
-  .navigation-dialog[open] .menu-photo img { transform: scale(1.08); }
-}
 
 /* ---------- Hero ---------- */
 
@@ -725,9 +725,6 @@ main:focus-visible, h2:focus-visible { outline: none; }
   .brand { width: 196px; margin-inline-start: -12px; }
   .menu-trigger { gap: 10px; }
   .menu-glyph { width: 44px; height: 44px; }
-  .menu-glyph i { left: 12px; top: 18px; }
-  .menu-glyph i + i { top: 25px; }
-  .menu-close .menu-glyph i, .menu-close .menu-glyph i + i { top: 21px; }
 
   .menu-body { grid-template-columns: 1fr; padding-block: 8px 16px; }
   .menu-aside { display: none; }

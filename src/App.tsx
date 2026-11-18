@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type MouseEvent, type ReactNode } from 'react'
 import { business, services, workingSteps, type Audience } from './content'
 import EnquiryForm from './EnquiryForm'
 import { initMotion, scrollToTarget } from './motion'
@@ -37,6 +37,7 @@ export default function App() {
   const [enquiryRequest, setEnquiryRequest] = useState(0)
   const [currentSection, setCurrentSection] = useState('')
   const menuDialog = useRef<HTMLDialogElement>(null)
+  const afterMenuClose = useRef<(() => void) | null>(null)
 
   useEffect(() => initMotion(), [])
 
@@ -52,21 +53,37 @@ export default function App() {
     return () => observer.disconnect()
   }, [])
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const dialog = menuDialog.current
     if (!dialog) return
-    if (menuOpen && !dialog.open) dialog.showModal()
-    if (!menuOpen && dialog.open) dialog.close()
-    document.documentElement.classList.toggle('menu-open', menuOpen)
+    let cancelled = false
+    let frame = 0
+    if (menuOpen) {
+      afterMenuClose.current = null
+      document.documentElement.classList.add('menu-open')
+      if (!dialog.open) dialog.showModal()
+      // Establish the closed pose before the first frame, including on a cold load.
+      void dialog.getBoundingClientRect()
+      frame = requestAnimationFrame(() => { dialog.dataset.expanded = 'true' })
+    } else if (dialog.open) {
+      dialog.dataset.expanded = 'false'
+      // Keep the modal, focus trap and scroll lock until the actual exit finishes.
+      // Interrupted transitions reject; both completion paths still settle safely.
+      const animations = dialog.getAnimations({ subtree: true })
+      Promise.allSettled(animations.map((animation) => animation.finished)).then(() => {
+        if (!cancelled) dialog.close()
+      })
+    }
+    return () => { cancelled = true; cancelAnimationFrame(frame) }
   }, [menuOpen])
+
+  useEffect(() => () => document.documentElement.classList.remove('menu-open'), [])
 
   function navigate(event: MouseEvent<HTMLAnchorElement>) {
     if (!followsInPlace(event)) return
     event.preventDefault()
     const hash = event.currentTarget.hash
     const wasOpen = menuDialog.current?.open
-    setMenuOpen(false)
-    menuDialog.current?.close()
     const go = () => {
       const target = document.getElementById(hash.slice(1))
       if (hash === '#main') {
@@ -80,8 +97,11 @@ export default function App() {
       scrollToTarget(hash === '#top' ? null : frame)
       try { history.replaceState(null, '', hash) } catch { /* Embedded previews use an isolated origin. */ }
     }
-    // Let the menu begin closing before the page moves, so the two motions read as one gesture.
-    if (wasOpen) window.setTimeout(go, 90)
+    // Start the destination scroll only after the modal releases its scroll lock.
+    if (wasOpen) {
+      afterMenuClose.current = go
+      setMenuOpen(false)
+    }
     else requestAnimationFrame(go)
   }
 
@@ -110,7 +130,7 @@ export default function App() {
             <a className="header-link" href="#enquiry" onClick={(event) => enquire(event, 'Employer')}>
               <span>Hiring enquiry</span>
             </a>
-            <button className="menu-trigger" type="button"
+            <button className="menu-trigger" type="button" aria-label="Open menu"
               aria-expanded={menuOpen} aria-controls="navigation-dialog" aria-haspopup="dialog"
               onClick={() => setMenuOpen(true)}>
               <span className="menu-word">Menu</span>
@@ -122,17 +142,27 @@ export default function App() {
       </header>
 
       <dialog className="navigation-dialog" id="navigation-dialog" ref={menuDialog}
-        aria-label="Explore Wattlebridge" onClose={() => setMenuOpen(false)}
+        aria-label="Explore Wattlebridge"
+        onCancel={(event) => { event.preventDefault(); setMenuOpen(false) }}
+        onClose={() => {
+          document.documentElement.classList.remove('menu-open')
+          setMenuOpen(false)
+          const go = afterMenuClose.current
+          afterMenuClose.current = null
+          go?.()
+        }}
         onClick={(event) => { if (event.target === event.currentTarget) setMenuOpen(false) }}>
-        <div className="menu-panel">
-          <div className="frame menu-shell">
-            <div className="menu-header">
-              <a className="brand" href="#top" aria-label={business.name + ' home'} onClick={navigate}><Logo reversed /></a>
-              <button className="menu-trigger menu-close" type="button" autoFocus onClick={() => setMenuOpen(false)}>
+        <div className="menu-top">
+            <div className="frame menu-header">
+              <a className="brand" href="#top" aria-label={business.name + ' home'} onClick={navigate}><Logo /><span aria-hidden="true"><Logo reversed /></span></a>
+              <button className="menu-trigger menu-close" type="button" aria-label="Close menu" autoFocus onClick={() => setMenuOpen(false)}>
                 <span className="menu-word">Close</span>
                 <span className="menu-glyph" aria-hidden="true"><i /><i /></span>
               </button>
             </div>
+        </div>
+        <div className="menu-panel">
+          <div className="frame menu-shell">
             <div className="menu-body">
               <nav className="menu-navigation" aria-label="Primary">
                 {navigation.map(({ href, label, section }, index) => (
@@ -147,7 +177,7 @@ export default function App() {
               <aside className="menu-aside">
                 <figure className="menu-photo">
                   <Photo name="recruitment-discussion" widths={[640, 1160]} sizes="22vw"
-                    width="1160" height="773" loading="lazy" alt="" />
+                    width="1160" height="773" loading="eager" fetchPriority="low" alt="" />
                 </figure>
                 <address className="menu-contact">
                   <a href={business.telephoneHref}>{business.telephone}</a>
