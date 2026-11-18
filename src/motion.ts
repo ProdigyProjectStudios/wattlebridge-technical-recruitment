@@ -193,7 +193,7 @@ export function scrollToTarget(target: HTMLElement | null, onArrive?: () => void
     return
   }
 
-  const duration = clamp(520 + distance * 0.28, 650, 1350)
+  const duration = clamp(380 + distance * 0.2, 500, 1050)
   const began = performance.now()
   let id = 0
   const interrupts = ['wheel', 'touchstart', 'keydown', 'pointerdown'] as const

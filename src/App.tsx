@@ -206,21 +206,21 @@ export default function App() {
               <Line i={2} className="hero-title-tail">built around your team</Line>
             </h1>
             <div className="hero-copy">
-              <p className="hero-intro" data-reveal="fade" style={delay(520)}>
+              <p className="hero-intro" data-reveal="fade" style={delay(200)}>
                 Wattlebridge Technical Recruitment helps employers across Perth and Western Australia recruit IT and
                 technical professionals for permanent and contract roles.
               </p>
-              <p className="hero-belief" data-reveal="fade" style={delay(600)}>
+              <p className="hero-belief" data-reveal="fade" style={delay(260)}>
                 We start by understanding the work, the team and the skills that matter.
               </p>
-              <div className="hero-actions" data-reveal="fade" style={delay(680)}>
+              <div className="hero-actions" data-reveal="fade" style={delay(320)}>
                 <a className="button button-primary" href="#services" onClick={navigate}>
                   Explore employer services <ButtonArrow />
                 </a>
                 <a className="text-link" href="#candidates" onClick={navigate}>For candidates <Arrow /></a>
               </div>
             </div>
-            <div className="hero-art" data-scroll>
+            <div className="hero-art">
               <figure className="arch arch-main" data-reveal="mask" style={delay(120)}>
                 <div className="arch-media depth-slow">
                   <Photo name="technical-collaboration-portrait" widths={[640, 960, 1280]}
@@ -312,7 +312,7 @@ export default function App() {
               <Line i={0}>A clearer</Line>{' '}
               <Line i={1} className="accent">starting point.</Line>
             </h2>
-            <figure className="employer-photo" data-reveal="wipe" data-scroll>
+            <figure className="employer-photo" data-reveal="wipe">
               <div className="employer-media depth-slow">
                 <Photo name="recruitment-discussion" widths={[640, 1160]}
                   sizes="(max-width: 767px) calc(100vw - 40px), 52vw"
@@ -353,13 +353,13 @@ export default function App() {
         {/* ---------------- Place: ivory turns to forest ---------------- */}
         <section className="place" aria-label="Perth, Western Australia">
           <figure className="place-figure" data-scroll>
-            <div className="place-window">
+            {[0, 1].map((arch) => <div className="place-window" key={arch} aria-hidden={arch === 1 ? true : undefined}>
               <div className="place-media">
                 <Photo name="perth-riverfront" widths={[960, 1536]} sizes="100vw"
                   width="1536" height="1024" loading="lazy"
-                  alt="The Perth city skyline across the river on a clear day" />
+                  alt={arch === 0 ? "The Perth city skyline across the river on a clear day" : ""} />
               </div>
-            </div>
+            </div>)}
             <figcaption className="frame place-caption">
               <p className="eyebrow eyebrow-light" data-reveal="fade"><span className="dot" aria-hidden="true" />Perth, Western Australia</p>
               <p className="place-line" data-reveal="lines">
