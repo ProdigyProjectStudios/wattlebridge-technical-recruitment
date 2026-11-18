@@ -353,16 +353,22 @@ export default function App() {
         {/* ---------------- Place: ivory turns to forest ---------------- */}
         <section className="place" aria-label="Perth, Western Australia">
           <figure className="place-figure" data-scroll>
-            {[0, 1].map((arch) => <div className="place-window" key={arch} aria-hidden={arch === 1 ? true : undefined}>
+            <svg className="place-mask" aria-hidden="true" width="0" height="0">
+              <defs><clipPath id="place-arches" clipPathUnits="objectBoundingBox">
+                <path data-place-arch d="M0,0H.501V1H0Z" />
+                <path data-place-arch d="M.499,0H1V1H.499Z" />
+              </clipPath></defs>
+            </svg>
+            <div className="place-window">
               <div className="place-media">
                 <Photo name="perth-riverfront" widths={[960, 1536]} sizes="100vw"
                   width="1536" height="1024" loading="lazy"
-                  alt={arch === 0 ? "The Perth city skyline across the river on a clear day" : ""} />
+                  alt="The Perth city skyline across the river on a clear day" />
               </div>
-            </div>)}
+            </div>
             <figcaption className="frame place-caption">
-              <p className="eyebrow eyebrow-light" data-reveal="fade"><span className="dot" aria-hidden="true" />Perth, Western Australia</p>
-              <p className="place-line" data-reveal="lines">
+              <p className="eyebrow eyebrow-light"><span className="dot" aria-hidden="true" />Perth, Western Australia</p>
+              <p className="place-line">
                 <Line i={0}>IT and technical recruitment</Line>{' '}
                 <Line i={1}>across Perth and Western Australia.</Line>
               </p>

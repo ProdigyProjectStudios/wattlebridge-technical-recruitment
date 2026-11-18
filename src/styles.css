@@ -465,22 +465,18 @@ button.text-link { font-weight: 700; }
 
 .place { background: linear-gradient(to bottom, var(--ivory) 0 50%, var(--forest) 50% 100%); }
 .place-figure {
-  --k: clamp(0, calc((var(--p, 1) - .14) * 2.6), 1);
-  --start-inset: 29vw;
+  --arch-inset: .29;
   position: relative; height: clamp(440px, 82svh, 860px);
 }
+.place-mask { position: absolute; pointer-events: none; }
 .place-window {
   position: absolute; inset: 0; overflow: hidden; background: var(--forest-deep);
-  --arch-radius: calc((1 - var(--k)) * 22vw);
-  --arch-edge: calc((1 - var(--k)) * var(--start-inset));
-  --arch-centre: calc(50% + (1 - var(--k)) * 8px);
-  clip-path: inset(0 var(--arch-centre) 0 var(--arch-edge) round var(--arch-radius) var(--arch-radius) 0 0);
+  transform: translateZ(0); backface-visibility: hidden;
 }
-.place-window + .place-window {
-  clip-path: inset(calc((1 - var(--k)) * 12%) var(--arch-edge) 0 var(--arch-centre) round var(--arch-radius) var(--arch-radius) 0 0);
-}
-.place-media { position: absolute; inset: -6% 0; }
-.place-media img { --depth: -10%; object-position: 50% 58%; transform: translate3d(0, calc((var(--p, .5) - .5) * var(--depth)), 0) scale(calc(1.16 - var(--k) * .12)); }
+.motion-on .place-window { clip-path: url(#place-arches); }
+.motion-on .place-figure.is-panorama .place-window { clip-path: none; }
+.place-media { position: absolute; inset: 0; }
+.place-media img { object-position: 50% 58%; transform: none; }
 .place-window::after {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(to top, rgb(11 35 31 / .82) 0%, rgb(11 35 31 / .35) 34%, rgb(11 35 31 / 0) 58%);
@@ -488,7 +484,14 @@ button.text-link { font-weight: 700; }
 .place-caption {
   position: absolute; left: 0; right: 0; bottom: clamp(32px, 6vh, 64px); z-index: 1;
   display: grid; gap: 20px;
-  opacity: clamp(0, calc((var(--k) - .48) * 3.2), 1);
+
+}
+.motion-on .place-figure:not(.is-open) .place-caption { opacity: 0; }
+.motion-on .place-figure:not(.is-open) .place-caption .line-inner { transform: translate3d(0, 145%, 0); }
+.motion-on .place-figure.is-open .place-caption { opacity: 1; transition: opacity 400ms ease; }
+.motion-on .place-figure.is-open .place-caption .line-inner {
+  transform: translate3d(0, 0, 0);
+  transition: transform 700ms var(--ease-out) calc(var(--i, 0) * 90ms);
 }
 .place-line {
   color: var(--ivory); font-family: var(--font-display); font-weight: 700;
@@ -665,7 +668,6 @@ button.text-link { font-weight: 700; }
 
 /* Without motion, every scroll-linked value rests at its composed state. */
 .motion-off :is(.arch-media, .employer-media, .candidate-media, .place-media) img { transform: none; }
-.motion-off .place-figure { --k: 1; }
 .motion-off .process-list { --progress: 1; }
 
 /* =========================================================================
@@ -706,7 +708,7 @@ button.text-link { font-weight: 700; }
   .enquiry-copy .eyebrow, .enquiry-copy h2 { grid-column: 1 / -1; }
   .enquiry-copy .test-guidance { margin-top: 0; align-self: start; }
   .menu-body { grid-template-columns: minmax(0, 1fr) 220px; gap: 40px; }
-  .place-figure { --start-inset: 22vw; height: clamp(420px, 64svh, 720px); }
+  .place-figure { --arch-inset: .22; height: clamp(420px, 64svh, 720px); }
 }
 
 @media (max-width: 767px) {
@@ -761,7 +763,7 @@ button.text-link { font-weight: 700; }
   .process-step h4 { font-size: 21px; }
   .process-step p { font-size: 15px; }
 
-  .place-figure { --start-inset: 8vw; height: clamp(400px, 66svh, 560px); }
+  .place-figure { --arch-inset: .08; height: clamp(400px, 66svh, 560px); }
   .place-line { font-size: clamp(26px, 7vw, 36px); }
   .place-caption { gap: 14px; }
 

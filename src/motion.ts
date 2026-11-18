@@ -97,6 +97,48 @@ export function initMotion(): () => void {
     /* ---------- Scroll-linked progress ---------- */
     const tracked = new Map<HTMLElement, { value: number }>()
     let frame = 0
+    const place = document.querySelector<HTMLElement>('.place-figure')
+    const arches = place?.querySelectorAll<SVGPathElement>('[data-place-arch]')
+    let placeWidth = 1, placeHeight = 1, placeInset = .29
+    let captionTimer = 0
+    let imageReady = false
+    let previousFrame = 0
+
+    const measurePlace = () => {
+      if (!place) return
+      placeWidth = place.clientWidth || 1
+      placeHeight = place.clientHeight || 1
+      placeInset = parseFloat(getComputedStyle(place).getPropertyValue('--arch-inset'))
+    }
+    measurePlace()
+
+    const updatePlace = (progress: number) => {
+      if (!place || !arches) return
+      const k = clamp((progress - .14) * 2.6)
+      const edge = (1 - k) * placeInset
+      // Both arches clip ONE stationary image. A subpixel overlap removes the centre seam.
+      const gap = ((1 - k) * 8 - k * .5) / placeWidth
+      const width = .5 - gap - edge
+      const rx = Math.max(0, width * .5 * (1 - k))
+      const ry = Math.min(.45, rx * placeWidth / placeHeight)
+      arches.forEach((path, index) => {
+        const x = index ? .5 + gap : edge
+        const y = index ? (1 - k) * .12 : 0
+        path.setAttribute('d', `M${x},1V${y + ry}Q${x},${y} ${x + rx},${y}H${x + width - rx}Q${x + width},${y} ${x + width},${y + ry}V1Z`)
+      })
+      place.classList.toggle('is-panorama', k === 1)
+      if (k < 1) {
+        clearTimeout(captionTimer)
+        captionTimer = 0
+        place.classList.remove('is-open')
+      } else if (imageReady && !captionTimer && !place.classList.contains('is-open')) {
+        // Let the complete panorama paint before beginning the separate text entrance.
+        captionTimer = window.setTimeout(() => {
+          place.classList.add('is-open')
+          captionTimer = 0
+        }, 160)
+      }
+    }
 
     const measure = (el: HTMLElement) => {
       const rect = el.getBoundingClientRect()
@@ -104,8 +146,10 @@ export function initMotion(): () => void {
       return clamp((vh - rect.top) / (vh + rect.height))
     }
 
-    const tick = () => {
+    const tick = (time = performance.now()) => {
       frame = 0
+      const elapsed = previousFrame ? Math.min(time - previousFrame, 50) : 16.67
+      previousFrame = time
       const vh = window.innerHeight
       const max = document.documentElement.scrollHeight - vh
       const y = window.scrollY
@@ -116,13 +160,15 @@ export function initMotion(): () => void {
       let settling = false
       for (const [el, state] of tracked) {
         const target = measure(el)
-        let next = state.value + (target - state.value) * 0.14
+        const ease = el === place ? 1 - Math.exp(-elapsed / 105) : .14
+        let next = state.value + (target - state.value) * ease
         if (Math.abs(target - next) < 0.0008) next = target
         else settling = true
         if (next !== state.value || !el.style.getPropertyValue('--p')) {
           state.value = next
           el.style.setProperty('--p', next.toFixed(4))
         }
+        if (el === place) updatePlace(next)
       }
       if (settling) frame = requestAnimationFrame(tick)
     }
@@ -130,6 +176,12 @@ export function initMotion(): () => void {
     const kick = () => {
       if (!frame) frame = requestAnimationFrame(tick)
     }
+
+    const placeImage = place?.querySelector<HTMLImageElement>('.place-media img')
+    placeImage?.decode().catch(() => {}).then(() => {
+      if (!cancelled) { imageReady = true; kick() }
+    })
+    const resize = () => { measurePlace(); kick() }
 
     if (!reduced) {
       const scrollObserver = new IntersectionObserver((entries) => {
@@ -152,12 +204,13 @@ export function initMotion(): () => void {
     }
 
     window.addEventListener('scroll', kick, { passive: true })
-    window.addEventListener('resize', kick)
+    window.addEventListener('resize', resize)
     kick()
     cleanups.push(() => {
       window.removeEventListener('scroll', kick)
-      window.removeEventListener('resize', kick)
+      window.removeEventListener('resize', resize)
       cancelAnimationFrame(frame)
+      clearTimeout(captionTimer)
     })
   } catch {
     root.classList.remove('motion-on')
