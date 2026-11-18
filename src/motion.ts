@@ -5,8 +5,7 @@
  * - [data-reveal] elements receive `.is-in` once, when they first enter the viewport.
  *   CSS owns the choreography (lines, fade, mask, wipe, rule, draw) using shared easing tokens.
  * - [data-scroll] elements receive a damped `--p` (0 → 1 while they cross the viewport).
- *   CSS maps it to restrained depth. The Perth arches use spring-driven compositor transforms.
- *   Geometry reads are batched before writes; there are no React renders per frame.
+ *   CSS maps it to restrained depth and the Perth arch opening. No React renders per frame.
  * - Anchor navigation uses an eased, interruptible scroll. Native wheel, touch and keyboard
  *   scrolling are never intercepted.
  *
@@ -99,10 +98,7 @@ export function initMotion(): () => void {
     const tracked = new Map<HTMLElement, { value: number }>()
     let frame = 0
     const place = document.querySelector<HTMLElement>('.place-figure')
-    const covers = place?.querySelectorAll<HTMLElement | SVGSVGElement>('.place-shutters > *')
-    const progressBar = document.querySelector<HTMLElement>('.page-progress')
-    let placeValue = 0, placeVelocity = 0, placeInitialised = false
-    let lastPlaceValue = -1
+    const arches = place?.querySelectorAll<SVGPathElement>('[data-place-arch]')
     let placeWidth = 1, placeHeight = 1, placeInset = .29
     let captionTimer = 0
     let imageReady = false
@@ -116,46 +112,21 @@ export function initMotion(): () => void {
     }
     measurePlace()
 
-    const updatePlace = (progress: number, elapsed: number) => {
-      if (!place || !covers) return false
-      const raw = clamp((progress - .14) * 2.6)
-      const target = raw * raw * (3 - 2 * raw)
-      if (!placeInitialised) {
-        placeValue = target
-        placeInitialised = true
-      }
-      // Exact critically damped spring: retain velocity on reversals, independent of refresh rate.
-      const dt = elapsed / 1000
-      const omega = 18
-      const delta = placeValue - target
-      const impulse = placeVelocity + omega * delta
-      const decay = Math.exp(-omega * dt)
-      placeValue = target + (delta + impulse * dt) * decay
-      placeVelocity = (placeVelocity - omega * impulse * dt) * decay
-      const settled = Math.abs(placeValue - target) < .00008 && Math.abs(placeVelocity) < .001
-      if (settled) { placeValue = target; placeVelocity = 0 }
-      const k = clamp(placeValue)
-      if (k !== lastPlaceValue) {
-        // Fixed, pre-rasterised covers only translate/scale. No path mutation, clipping or layout.
-        const edge = (1 - k) * placeInset * placeWidth
-        const gap = (1 - k) * 8
-        const overlap = (1 - k) * .5
-        const width = placeWidth * .5 - gap - edge
-        const rx = width * .5 * (1 - k)
-        const ry = Math.min(placeHeight * .45, rx)
-        const top = (1 - k) * placeHeight * .12
-        covers[0].style.transform = `scaleX(${edge + overlap})`
-        covers[1].style.transform = `scaleX(${edge + overlap})`
-        covers[2].style.transform = `translate3d(${-gap - overlap}px,0,0) scaleX(${(gap + overlap) * 2})`
-        covers[3].style.transform = `scaleY(${top + overlap})`
-        const positions = [[edge, 0, 1], [placeWidth * .5 - gap, 0, -1], [placeWidth * .5 + gap, top, 1], [placeWidth - edge, top, -1]]
-        positions.forEach(([x, y, direction], index) => {
-          covers[index + 4].style.transform = `translate3d(${x}px,${y}px,0) scale(${direction * rx / 512},${ry / 512})`
-        })
-        place.classList.add('is-arch-ready')
-        place.classList.toggle('is-panorama', k === 1)
-        lastPlaceValue = k
-      }
+    const updatePlace = (progress: number) => {
+      if (!place || !arches) return
+      const k = clamp((progress - .14) * 2.6)
+      const edge = (1 - k) * placeInset
+      // Both arches clip ONE stationary image. A subpixel overlap removes the centre seam.
+      const gap = ((1 - k) * 8 - k * .5) / placeWidth
+      const width = .5 - gap - edge
+      const rx = Math.max(0, width * .5 * (1 - k))
+      const ry = Math.min(.45, rx * placeWidth / placeHeight)
+      arches.forEach((path, index) => {
+        const x = index ? .5 + gap : edge
+        const y = index ? (1 - k) * .12 : 0
+        path.setAttribute('d', `M${x},1V${y + ry}Q${x},${y} ${x + rx},${y}H${x + width - rx}Q${x + width},${y} ${x + width},${y + ry}V1Z`)
+      })
+      place.classList.toggle('is-panorama', k === 1)
       if (k < 1) {
         clearTimeout(captionTimer)
         captionTimer = 0
@@ -167,7 +138,6 @@ export function initMotion(): () => void {
           captionTimer = 0
         }, 160)
       }
-      return !settled
     }
 
     const measure = (el: HTMLElement) => {
@@ -183,28 +153,24 @@ export function initMotion(): () => void {
       const vh = window.innerHeight
       const max = document.documentElement.scrollHeight - vh
       const y = window.scrollY
-      // Finish all geometry reads before any writes; SVG/style updates previously forced reflow.
-      const targets = reduced ? [] : [...tracked].map(([el, state]) => ({ el, state, target: measure(el) }))
-      if (progressBar) progressBar.style.transform = `scaleX(${max > 0 ? clamp(y / max) : 0})`
+      root.style.setProperty('--page', (max > 0 ? clamp(y / max) : 0).toFixed(4))
       root.classList.toggle('is-scrolled', y > 12)
 
       if (reduced) return
       let settling = false
-      for (const { el, state, target } of targets) {
-        if (el === place) {
-          settling = updatePlace(target, elapsed) || settling
-          continue
-        }
-        let next = state.value + (target - state.value) * .14
+      for (const [el, state] of tracked) {
+        const target = measure(el)
+        const ease = el === place ? 1 - Math.exp(-elapsed / 105) : .14
+        let next = state.value + (target - state.value) * ease
         if (Math.abs(target - next) < 0.0008) next = target
         else settling = true
         if (next !== state.value || !el.style.getPropertyValue('--p')) {
           state.value = next
           el.style.setProperty('--p', next.toFixed(4))
         }
+        if (el === place) updatePlace(next)
       }
       if (settling) frame = requestAnimationFrame(tick)
-      else previousFrame = 0
     }
 
     const kick = () => {
@@ -215,7 +181,7 @@ export function initMotion(): () => void {
     placeImage?.decode().catch(() => {}).then(() => {
       if (!cancelled) { imageReady = true; kick() }
     })
-    const resize = () => { measurePlace(); lastPlaceValue = -1; kick() }
+    const resize = () => { measurePlace(); kick() }
 
     if (!reduced) {
       const scrollObserver = new IntersectionObserver((entries) => {

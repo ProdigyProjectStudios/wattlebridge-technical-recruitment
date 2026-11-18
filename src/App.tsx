@@ -353,23 +353,18 @@ export default function App() {
         {/* ---------------- Place: ivory turns to forest ---------------- */}
         <section className="place" aria-label="Perth, Western Australia">
           <figure className="place-figure" data-scroll>
+            <svg className="place-mask" aria-hidden="true" width="0" height="0">
+              <defs><clipPath id="place-arches" clipPathUnits="objectBoundingBox">
+                <path data-place-arch d="M0,0H.501V1H0Z" />
+                <path data-place-arch d="M.499,0H1V1H.499Z" />
+              </clipPath></defs>
+            </svg>
             <div className="place-window">
               <div className="place-media">
                 <Photo name="perth-riverfront" widths={[960, 1536]} sizes="100vw"
                   width="1536" height="1024" loading="lazy"
                   alt="The Perth city skyline across the river on a clear day" />
               </div>
-            </div>
-            <div className="place-shutters" aria-hidden="true">
-              <span className="place-cover-side place-cover-left" />
-              <span className="place-cover-side place-cover-right" />
-              <span className="place-cover-centre" />
-              <span className="place-cover-top" />
-              {[0, 1, 2, 3].map((corner) => (
-                <svg key={corner} className="place-cover-corner" width="512" height="512" viewBox="0 0 512 512">
-                  <path d="M0 0H512Q0 0 0 512Z" />
-                </svg>
-              ))}
             </div>
             <figcaption className="frame place-caption">
               <p className="eyebrow eyebrow-light"><span className="dot" aria-hidden="true" />Perth, Western Australia</p>
