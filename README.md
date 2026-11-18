@@ -28,7 +28,7 @@ Open [the local preview](http://127.0.0.1:4173/).
 
 ## Typography and navigation
 
-Display typography uses locally hosted Instrument Sans (variable weight and width, with its italic for headline accents), set at a condensed 84–92% width with tight tracking. Body text uses Arial; the supplied logo remains unchanged. Instrument Sans’s OFL license is included in `src/assets`.
+All site text uses Arial: bold 700 for headings, buttons and form labels; regular 400 for body text and navigation. The supplied logo remains unchanged. No web fonts are loaded.
 
 Motion is handled by one small engine in `src/motion.ts`: headings reveal line by line behind masks, photographs open through arch and wipe masks, images carry restrained scroll-linked depth, and the Perth riverfront band opens from an arch into a full-width view as the page turns from ivory to forest. Scrolling is always native; anchor links use an eased scroll that any wheel, touch or key input interrupts. All content is visible by default: hidden starting states only apply once the motion engine has started, a 2.5-second failsafe reveals everything if it does not, and reduced-motion users get the composed final state. The compact menu is content-sized, traps focus as a modal dialog, closes on Escape or navigation and returns focus to its trigger.
 
