@@ -28,7 +28,9 @@ Open [the local preview](http://127.0.0.1:4173/).
 
 ## Typography and navigation
 
-Display typography uses locally hosted Manrope with custom weights and spacing, following the updated font direction. Body text uses Arial; the supplied logo remains unchanged. Manrope’s OFL license is included in `src/assets`. The animated content-sized menu supports keyboard focus, Escape, smooth section navigation and reduced motion.
+Display typography uses locally hosted Instrument Sans (variable weight and width, with its italic for headline accents), set at a condensed 84–92% width with tight tracking. Body text uses Arial; the supplied logo remains unchanged. Instrument Sans’s OFL license is included in `src/assets`.
+
+Motion is handled by one small engine in `src/motion.ts`: headings reveal line by line behind masks, photographs open through arch and wipe masks, images carry restrained scroll-linked depth, and the Perth riverfront band opens from an arch into a full-width view as the page turns from ivory to forest. Scrolling is always native; anchor links use an eased scroll that any wheel, touch or key input interrupts. All content is visible by default: hidden starting states only apply once the motion engine has started, a 2.5-second failsafe reveals everything if it does not, and reduced-motion users get the composed final state. The compact menu is content-sized, traps focus as a modal dialog, closes on Escape or navigation and returns focus to its trigger.
 
 ## Enquiry demonstration
 
@@ -36,4 +38,4 @@ The hiring and candidate actions preselect the corresponding audience and show t
 
 ## AI assistance
 
-Aaron supplied the brief, reference projects and art direction. Codex studied the reference repositories and supplied photographs, developed the composition, implemented the React homepage and refined it after browser review. Codex inspected the production render at 1440, 768 and 390 pixels and checked keyboard navigation, reduced motion, validation and both successful enquiry paths. The copy and artwork came from the assessment materials.
+Aaron supplied the brief, reference projects and art direction. Codex studied the reference repositories and supplied photographs, developed the composition and implemented the React homepage. Replit Agent then refined it on the `refine/crafted-experience` branch: new display typography, hero composition, the motion system, the “How we work” steps (approved Employers copy) and the Perth riverfront band, plus menu, accordion, button and form polish. The two hero arches use portrait versions of the supplied photographs, extended with AI image editing to fit the taller frames; the Perth riverfront image is AI-generated. Original supplied photographs remain in `public/images`. The production build was reviewed at 1440, 768 and 390 pixels with automated browser checks for horizontal overflow (down to 320px), keyboard order and the skip link, menu focus and Escape behaviour, anchor landing below the sticky header, reduced motion, empty and invalid form validation, and successful Employer and Candidate submissions stored locally. Copy came from the assessment materials; nothing was invented.

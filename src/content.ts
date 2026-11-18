@@ -29,6 +29,13 @@ export const services = [
   },
 ]
 
+export const workingSteps = [
+  { title: 'Understand the requirement', description: 'Discuss the role, team, priorities and practical constraints.' },
+  { title: 'Agree the brief', description: 'Confirm the responsibilities, skills and recruitment approach.' },
+  { title: 'Find and assess candidates', description: 'Identify relevant people and discuss their suitability.' },
+  { title: 'Support the decision', description: 'Coordinate interviews, feedback and next steps with the employer and candidate.' },
+]
+
 export const audiences = ['Employer', 'Candidate'] as const
 export type Audience = (typeof audiences)[number]
 
