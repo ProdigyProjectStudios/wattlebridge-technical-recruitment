@@ -1,0 +1,9 @@
+WATTLEBRIDGE TECHNICAL RECRUITMENT
+
+Primary: forest green and brass, for light backgrounds.
+Reversed: white and brass, for dark backgrounds. The PNG is transparent and may look blank on white.
+Mono: one-colour forest green.
+Symbol: standalone SVG for compact identity use; use the full business name elsewhere.
+
+SVG files are editable vector masters. PDF files are vector references. PNG files have transparent backgrounds.
+Use the supplied artwork without redrawing, stretching or recolouring it.
