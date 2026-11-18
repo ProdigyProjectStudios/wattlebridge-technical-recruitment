@@ -486,9 +486,13 @@ button.text-link { font-weight: 700; }
   display: grid; gap: 20px;
 
 }
+.motion-on .place-caption { transition: opacity 400ms ease; }
 .motion-on .place-figure:not(.is-open) .place-caption { opacity: 0; }
-.motion-on .place-figure:not(.is-open) .place-caption .line-inner { transform: translate3d(0, 145%, 0); }
-.motion-on .place-figure.is-open .place-caption { opacity: 1; transition: opacity 400ms ease; }
+.motion-on .place-figure:not(.is-open) .place-caption .line-inner {
+  transform: translate3d(0, 145%, 0);
+  transition: transform 0s linear 400ms;
+}
+.motion-on .place-figure.is-open .place-caption { opacity: 1; }
 .motion-on .place-figure.is-open .place-caption .line-inner {
   transform: translate3d(0, 0, 0);
   transition: transform 700ms var(--ease-out) calc(var(--i, 0) * 90ms);
