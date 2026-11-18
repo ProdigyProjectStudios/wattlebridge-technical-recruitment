@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react'
 import { audiences, enquiryPrompts, type Audience } from './content'
-import { Arrow } from './visuals'
+import { Arrow, ButtonArrow } from './visuals'
 
 type Field = 'name' | 'email' | 'audience' | 'message'
 type Errors = Partial<Record<Field, string>>
@@ -100,11 +100,11 @@ export default function EnquiryForm({ audience, setAudience, request }: EnquiryF
       <div className="form-panel confirmation">
         <div className="confirmation-icon" aria-hidden="true">
           <svg viewBox="0 0 24 24" width="24" height="24" fill="none">
-            <path d="m5 12 4.5 4.5L19 7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="m5 12 4.5 4.5L19 7" pathLength={1} stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </div>
         <h3 tabIndex={-1} id="enquiry-confirmation">Thank you. Your test enquiry has been received.</h3>
-        <p>Your {confirmation.audience.toLowerCase()} enquiry was saved in this browser for the assessment demonstration.</p>
+        <p>Your {confirmation.audience.toLowerCase()} enquiry was saved in this browser for the assessment demonstration. No email was sent.</p>
         <button className="text-link" type="button" onClick={() => {
           setConfirmation(null)
           focusAfterUpdate(fieldIds.name)
@@ -120,22 +120,27 @@ export default function EnquiryForm({ audience, setAudience, request }: EnquiryF
       <div className="form-grid">
         <div className="field">
           <label htmlFor={fieldIds.name}>Name</label>
-          <input id={fieldIds.name} name="name" autoComplete="name" required maxLength={120}
-            aria-invalid={hasError('name')} aria-describedby={errorDescription('name')}
-            onChange={() => clearError('name')} />
+          <span className="control">
+            <input id={fieldIds.name} name="name" autoComplete="name" required maxLength={120}
+              aria-invalid={hasError('name')} aria-describedby={errorDescription('name')}
+              onChange={() => clearError('name')} />
+          </span>
           {errorText('name')}
         </div>
         <div className="field">
           <label htmlFor={fieldIds.email}>Email</label>
-          <input id={fieldIds.email} name="email" type="email" autoComplete="email" required maxLength={254}
-            aria-invalid={hasError('email')} aria-describedby={errorDescription('email')}
-            onChange={() => clearError('email')} />
+          <span className="control">
+            <input id={fieldIds.email} name="email" type="email" autoComplete="email" required maxLength={254}
+              aria-invalid={hasError('email')} aria-describedby={errorDescription('email')}
+              onChange={() => clearError('email')} />
+          </span>
           {errorText('email')}
         </div>
 
         <fieldset className="field field-wide audience-field" aria-describedby={errorDescription('audience')}>
           <legend>You are a...</legend>
-          <div className="audience-options">
+          <div className="audience-options" data-selected={audience || undefined}>
+            <span className="audience-indicator" aria-hidden="true" />
             {audiences.map((option) => (
               <label key={option} className="audience-option">
                 <input id={'audience-' + option.toLowerCase()} name="audience" type="radio"
@@ -145,7 +150,8 @@ export default function EnquiryForm({ audience, setAudience, request }: EnquiryF
                     setAudience(option)
                     clearError('audience')
                   }} />
-                {option}
+                <span className="audience-mark" aria-hidden="true" />
+                <span>{option}</span>
               </label>
             ))}
           </div>
@@ -154,24 +160,29 @@ export default function EnquiryForm({ audience, setAudience, request }: EnquiryF
 
         <div className="field field-wide">
           <label htmlFor="enquiry-company">Company <span>(optional)</span></label>
-          <input id="enquiry-company" name="company" autoComplete="organization" maxLength={160} />
+          <span className="control">
+            <input id="enquiry-company" name="company" autoComplete="organization" maxLength={160} />
+          </span>
         </div>
         <div className="field field-wide">
           <label htmlFor={fieldIds.message}>Message</label>
           <div aria-live="polite" className="form-prompt">
             {audience && <p id="enquiry-prompt">{enquiryPrompts[audience]}</p>}
           </div>
-          <textarea id={fieldIds.message} name="message" rows={4} required maxLength={3000}
-            aria-invalid={hasError('message')}
-            aria-describedby={[audience && 'enquiry-prompt', errorDescription('message')].filter(Boolean).join(' ') || undefined}
-            onChange={() => clearError('message')} />
+          <span className="control">
+            <textarea id={fieldIds.message} name="message" rows={4} required maxLength={3000}
+              aria-invalid={hasError('message')}
+              aria-describedby={[audience && 'enquiry-prompt', errorDescription('message')].filter(Boolean).join(' ') || undefined}
+              onChange={() => clearError('message')} />
+          </span>
           {errorText('message')}
         </div>
       </div>
 
       <button className="button button-primary form-submit" type="submit">
-        Send enquiry <Arrow />
+        Send enquiry <ButtonArrow />
       </button>
+      <p className="form-note">Demonstration only: your enquiry is saved in this browser, not emailed.</p>
       {storageError && (
         <p className="field-error" id="enquiry-storage-error" tabIndex={-1}>
           Your test enquiry could not be saved in this browser. Check that local storage is available and try again.

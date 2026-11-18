@@ -23,7 +23,7 @@ Study Digital Prodigy, Aurixa, Syntra and HUMN for craft and interaction quality
 Read `docs/WATTLEBRIDGE_CODEX_BUILD_BRIEF.md` for the confirmed email agreement, approved copy, branding, source asset links and repository references. It is the implementation brief used for the build, with private correspondence, mailbox links and commercial discussions omitted for this public repository. Some instructions in that document predate the following direct instructions from Aaron:
 
 - Custom React + TypeScript with Vite and AI assistance are approved. The old WordPress/Elementor and no-AI assessment requirements are superseded. Do not touch WordPress staging.
-- Aaron subsequently requested custom typography/font. The current implementation therefore uses locally hosted Manrope for display typography and Arial for body text. The brief's original Arial-only restriction is superseded by that later request. The supplied logo remains unchanged.
+- Aaron subsequently requested custom typography/font. The current implementation uses locally hosted Instrument Sans (OFL, replacing Manrope) for display typography and Arial for body text. The brief's original Arial-only restriction is superseded by that later request. The supplied logo remains unchanged.
 - Aaron asked for a custom animated hamburger menu and automatic scrolling from navigation buttons. He then rejected excessive empty space in the full-screen menu. The current menu is sized to its content. Preserve clear keyboard operation, Escape/focus return and reduced-motion support while refining it.
 - Aaron explicitly authorized public publication through the existing Sites hosting and chose `wattlebridge.digitalprodigy.dev`. Replit is the editing environment and manages the domain DNS; he clarified that he is NOT requesting migration of public hosting to Replit.
 - Do not email or send messages to Tracy or Chad. Do not invent testimonials, clients, statistics, vacancies, employee identities or business claims.
@@ -38,7 +38,8 @@ Read `docs/WATTLEBRIDGE_CODEX_BUILD_BRIEF.md` for the confirmed email agreement,
 - `public/brand`: supplied SVG artwork used at runtime.
 - `public/images`: optimized responsive WebP images used at runtime.
 - `assets/originals`: all downloaded original photographs and logo variants, plus their source inventory. These are design inputs, not a request to serve large originals on the page.
-- `src/assets`: locally hosted Manrope font and OFL license.
+- `src/assets`: locally hosted Instrument Sans variable fonts (roman and italic) and OFL license.
+- `src/motion.ts`: reveal, scroll-depth and eased anchor-scroll engine; content stays visible if it fails.
 - `.openai/hosting.json`: identity of the existing Sites deployment. It is not a secret and is not needed to run the Vite app in Replit. Preserve it if continuing deployment on Sites.
 
 ## Reference projects

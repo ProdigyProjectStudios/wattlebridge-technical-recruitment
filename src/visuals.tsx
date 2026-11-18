@@ -46,3 +46,22 @@ export function Photo({ name, widths, sizes, ...props }: PhotoProps) {
     />
   )
 }
+
+/** Two arrows inside a circle: one leaves as the next arrives on hover and focus. */
+export function ButtonArrow() {
+  return (
+    <span className="button-icon" aria-hidden="true">
+      <Arrow />
+      <Arrow />
+    </span>
+  )
+}
+
+/** An open architectural arch drawn as a single stroke, echoing the paired-arch symbol. */
+export function ArchLine({ className = '' }: { className?: string }) {
+  return (
+    <svg className={'arch-line ' + className} viewBox="0 0 100 125" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0.5 125V50a49.5 49.5 0 0 1 99 0V125" pathLength={1} vectorEffect="non-scaling-stroke" />
+    </svg>
+  )
+}
