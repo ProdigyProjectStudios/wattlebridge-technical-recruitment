@@ -4,9 +4,9 @@ A React and TypeScript homepage built with Vite for the Wattlebridge assessment.
 
 ## Continue in Replit
 
-Start with [the redesign handoff](docs/REPLIT_HANDOFF.md), then read [the saved build brief](docs/WATTLEBRIDGE_CODEX_BUILD_BRIEF.md). The handoff records later instructions that supersede parts of the original brief. Original supplied imagery and logo variants are included in `assets/originals`; runtime assets are in `public`.
+Start with [the experience refinement handoff](docs/REPLIT_HANDOFF.md), then read [the saved build brief](docs/WATTLEBRIDGE_CODEX_BUILD_BRIEF.md). The handoff records later instructions that supersede parts of the original brief. Original supplied imagery and logo variants are included in `assets/originals`; runtime assets are in `public`.
 
-Import this repository into Replit, run `npm ci`, then use the Run button. No API keys or backend are required. Replit is for editing and preview; the current public site remains hosted separately.
+Import this repository into Replit, run `npm ci`, then use the Run button. No API keys or backend are required. Refine the existing site rather than completely redesigning it. Replit is for editing and preview: commit and push changes to this repository, then deploy the selected revision through Codex to the existing hosting and domain. GitHub pushes do not automatically deploy.
 
 ## Run locally
 

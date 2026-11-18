@@ -1,12 +1,22 @@
-# Wattlebridge redesign handoff
+# Wattlebridge experience refinement handoff
 
-## What Aaron wants next
+## Latest direction — refine the existing site
 
-Aaron wants to continue this React + TypeScript + Vite project in Replit using his preferred available model (requested: Opus 5.5). This repository does not select or guarantee a model in Replit.
+Aaron explicitly clarified that he does **not want a complete redesign**. Keep the existing Wattlebridge identity, core page structure, approved copy, photographs, employer/candidate journeys and working form. Improve the current experience in place. This clarification supersedes the earlier request in this handoff to treat the page as a redesign starting point.
 
-His latest assessment of the design: it is better than the initial version but still basic and not what he wants. Treat the current implementation as a functional starting point, not an approved final design. He is competing with three other developers and wants exceptional art direction and execution comparable in craft to his Digital Prodigy, Aurixa, Syntra and HUMN projects.
+His priorities are custom animations and effects, scroll-activated animation, a properly framed hero, premium typography and scrolling that feels polished and deliberate. The site should feel like a crafted experience rather than a generic landing page. Preserve what works; do not replace the page with a different template or rebuild its architecture without a concrete need.
 
-Make a substantial improvement to composition, imagery, visual hierarchy, typography and interaction. Do not limit the work to recolouring, adding animation or adjusting a few margins. Inspect the actual assets and reference repositories before choosing the next composition. Use them to understand craft; create an original recruitment website rather than copying their aesthetics wholesale.
+Aaron will work directly in this GitHub repository through Replit, using his preferred available model (requested: Opus 5.5). The repository does not select or guarantee a model. Replit is the editor and preview environment; production updates will be deployed from Codex to the existing Sites project, not hosted on Replit.
+
+## Refinement priorities
+
+1. **Frame the hero deliberately.** Refine the current oversized headline and paired-arch photographs as one composition: outer margins, text measure, line breaks, image proportions, crops, baseline alignment and CTA placement. Review complete first viewports at realistic desktop and mobile heights. The header, headline, photographs and actions should feel intentionally related, without accidental clipping or excessive blank space. Do not force everything into a fixed viewport height at the expense of readability.
+2. **Elevate typography.** Refine font choice, optical weight, scale, tracking, leading and responsive wrapping across the current site. Manrope is the current display font, not an immutable choice; Aaron has authorized custom typography. Use appropriately licensed fonts, retain their licenses and load them efficiently. Preserve readable body text and the supplied logo unchanged. Premium typography comes from the whole type system, not simply making every heading larger.
+3. **Choreograph scrolling.** Add purposeful, custom scroll-triggered motion: for example, selective text entrances, image-mask reveals, restrained image depth/parallax and carefully timed transitions between existing sections. Choose effects that suit the current identity, rather than stacking every effect onto every section. Shape pacing, easing, stagger and distance consistently. Content must remain visible if animation initialization fails.
+4. **Polish interaction.** Refine the existing hamburger/open-close choreography, navigation links, buttons, service accordion and form states. Keep the menu compact; Aaron explicitly rejected a full-screen panel padded with empty space. Anchor clicks must close the menu and smoothly reach the correct section without sticky-header obstruction.
+5. **Make the finish hold up on real devices.** Preserve native wheel, touch and keyboard control, avoid forced scroll speeds or long pinned sequences, and keep animation responsive to interruption. Respect reduced motion and simplify effects for small screens where needed. Favor transform/opacity animation and avoid layout thrashing, unnecessary React renders on every scroll frame, heavy dependencies without a clear benefit or continuous decorative motion.
+
+Study Digital Prodigy, Aurixa, Syntra and HUMN for craft and interaction quality while refining this site's existing visual language. The reference projects are not instructions to transplant their palettes, effects or layouts.
 
 ## Read first and resolve precedence
 
@@ -14,14 +24,14 @@ Read `docs/WATTLEBRIDGE_CODEX_BUILD_BRIEF.md` for the confirmed email agreement,
 
 - Custom React + TypeScript with Vite and AI assistance are approved. The old WordPress/Elementor and no-AI assessment requirements are superseded. Do not touch WordPress staging.
 - Aaron subsequently requested custom typography/font. The current implementation therefore uses locally hosted Manrope for display typography and Arial for body text. The brief's original Arial-only restriction is superseded by that later request. The supplied logo remains unchanged.
-- Aaron asked for a custom animated hamburger menu and automatic scrolling from navigation buttons. He then rejected excessive empty space in the full-screen menu. The current menu is sized to its content. Preserve clear keyboard operation, Escape/focus return and reduced-motion support while redesigning it.
+- Aaron asked for a custom animated hamburger menu and automatic scrolling from navigation buttons. He then rejected excessive empty space in the full-screen menu. The current menu is sized to its content. Preserve clear keyboard operation, Escape/focus return and reduced-motion support while refining it.
 - Aaron explicitly authorized public publication through the existing Sites hosting and chose `wattlebridge.digitalprodigy.dev`. Replit is the editing environment and manages the domain DNS; he clarified that he is NOT requesting migration of public hosting to Replit.
 - Do not email or send messages to Tracy or Chad. Do not invent testimonials, clients, statistics, vacancies, employee identities or business claims.
 
 ## Source map
 
 - `src/App.tsx`: homepage composition, modal navigation, section scrolling and audience actions.
-- `src/styles.css`: responsive layout, typography and motion. Includes later overrides; consolidate where appropriate during a redesign.
+- `src/styles.css`: responsive layout, typography and motion. Includes later overrides; consolidate where appropriate during refinement.
 - `src/EnquiryForm.tsx`: accessible demonstration form, validation, audience-specific prompts, local browser storage and confirmation.
 - `src/content.ts`: business copy and service metadata.
 - `src/visuals.tsx`: untouched supplied logos, responsive photographs and arrow icon.
@@ -46,7 +56,7 @@ Use forest green, ivory, restrained brass, generous but deliberate spacing, purp
 
 ## Run in Replit
 
-Import this GitHub repository into your Replit account. Connect your GitHub account if needed to import the private repository.
+Open or import this GitHub repository in Replit and work against its existing source. Pull the latest changes before starting. The repository is currently public; connect GitHub in Replit to push changes back.
 
 ```sh
 npm ci
@@ -84,6 +94,12 @@ As of this handoff, Aaron has added the DNS records in Replit. The custom domain
 
 GitHub and Sites are separate repositories. Pushing here does not automatically redeploy the existing Sites website. Do not move the domain, replace the main digitalprodigy.dev website, publish from Replit, or claim the live site changed merely because a GitHub commit was pushed.
 
+## Deliver changes back for deployment
+
+Work in this repository rather than a disconnected copy or replacement project. Commit the finished refinements and push them to GitHub. If using a feature branch, clearly identify it and the commit SHA for review; do not overwrite unrelated work. Include a short change summary, screenshots at the required widths and the checks actually run.
+
+Production deployment happens here in Codex: fetch the chosen GitHub revision, build and verify that revision, synchronize it to the existing Sites source repository and deploy a new version of the same Site. Preserve `.openai/hosting.json`, the existing project ID, public access and the `wattlebridge.digitalprodigy.dev` domain. No GitHub-to-Sites automatic deployment workflow is currently configured. A GitHub push alone does not update the live website. Do not create a Replit production deployment, migrate hosting or change DNS.
+
 ## Suggested starting prompt
 
-Read `docs/REPLIT_HANDOFF.md` and `docs/WATTLEBRIDGE_CODEX_BUILD_BRIEF.md`, respecting the later instructions in the handoff. Inspect the supplied original assets and reference repositories. Rework this homepage into a distinctive, carefully art-directed Wattlebridge experience; the current design is only a starting point and Aaron still considers it basic. Implement the redesign, inspect it at desktop/tablet/mobile widths and refine it until the composition and interactions are resolved. Preserve approved copy, logo and imagery, both audience journeys and the accessible demo form. Do not stop at a plan or scaffold. Prepare the result for review in Replit; do not migrate hosting or modify DNS.
+Read `docs/REPLIT_HANDOFF.md` and `docs/WATTLEBRIDGE_CODEX_BUILD_BRIEF.md`, giving the latest refinement instructions precedence. Do not completely redesign this site. Elevate the existing Wattlebridge experience with precise hero framing, premium typography, custom scroll-triggered animations and polished menu/button/section interactions. Preserve the identity, core structure, approved copy and supplied imagery, both audience journeys and the accessible demo form. Make scrolling feel deliberate and fluid without hijacking native input. Inspect and refine at 1440, 768 and 390 pixels, including reduced motion and keyboard navigation. Implement the refinements in this repository, run the production build, and commit/push the result with the branch and commit SHA. Codex will deploy the selected revision to the existing hosting and domain; do not host on Replit or modify DNS.
