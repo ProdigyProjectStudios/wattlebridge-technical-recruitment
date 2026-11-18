@@ -112,7 +112,7 @@ main:focus-visible, h2:focus-visible { outline: none; }
 .section-intro { max-width: 440px; font-size: 18px; color: var(--ink); }
 
 /* Masked heading lines. Overflow is clipped generously so descenders and italics never crop. */
-.line { display: block; overflow: clip; padding: .06em .12em .1em 0; margin: -.06em -.12em -.1em 0; }
+.line { display: block; overflow: clip; padding: .06em .12em .24em 0; margin: -.06em -.12em -.24em 0; }
 .line-inner { display: inline-block; }
 
 /* ---------- Buttons and links ---------- */
@@ -650,7 +650,7 @@ main:focus-visible, h2:focus-visible { outline: none; }
   transition: opacity 1000ms var(--ease-out) var(--delay, 0ms), transform 1200ms var(--ease-out) var(--delay, 0ms);
 }
 
-.motion-on [data-reveal="lines"]:not(.is-in) .line-inner { transform: translate3d(0, 112%, 0); }
+.motion-on [data-reveal="lines"]:not(.is-in) .line-inner { transform: translate3d(0, 145%, 0); }
 .motion-on [data-reveal="lines"].is-in .line-inner {
   transition: transform 1250ms var(--ease-out) calc(var(--delay, 0ms) + var(--i, 0) * 95ms);
 }
