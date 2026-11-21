@@ -32,6 +32,7 @@ const pad = (value: number) => String(value).padStart(2, '0')
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeService, setActiveService] = useState(0)
+  const [previousService, setPreviousService] = useState<number | null>(null)
   const [audience, setAudience] = useState<Audience | ''>('')
   const [enquiryRequest, setEnquiryRequest] = useState(0)
   const [currentSection, setCurrentSection] = useState('')
@@ -116,6 +117,12 @@ export default function App() {
     Candidate: ['Make a', 'candidate enquiry'],
     '': ['Start a', 'conversation.'],
   }[audience]
+
+  function chooseService(index: number) {
+    if (index === activeService) return
+    setPreviousService(activeService)
+    setActiveService(index)
+  }
 
   return (
     <>
@@ -254,43 +261,50 @@ export default function App() {
             </div>
 
             <div className="services-layout">
-              <figure className="services-visual" data-reveal="mask">
-                <Photo name="workplace-learning" widths={[640, 1160]} sizes="(max-width: 767px) 90vw, 39vw"
-                  width="1160" height="773" loading="lazy" alt="Colleagues discussing ideas at a whiteboard" />
-              </figure>
-              <div className="service-index">
-                <div className="service-list" role="tablist" aria-label="Recruitment services" aria-orientation="vertical"
-                  style={{ '--active': activeService, '--service-count': services.length } as CSSProperties}>
-                  {services.map(({ name }, index) => (
-                    <button key={name} type="button" role="tab" id={'service-button-' + index}
-                      aria-controls={'service-panel-' + index} aria-selected={activeService === index}
-                      tabIndex={activeService === index ? 0 : -1} onClick={() => setActiveService(index)}
-                      onKeyDown={(event) => {
-                        const destinations: Record<string, number> = {
-                          ArrowDown: (index + 1) % services.length,
-                          ArrowUp: (index + services.length - 1) % services.length,
-                          Home: 0, End: services.length - 1,
-                        }
-                        const next = destinations[event.key]
-                        if (next === undefined) return
-                        event.preventDefault()
-                        setActiveService(next)
-                        document.getElementById('service-button-' + next)?.focus()
-                      }}>{name}</button>
+              <div className="services-visual" data-reveal="mask">
+                <div className="services-frame" data-scroll>
+                  {services.map(({ image, imageAlt }, index) => (
+                    <figure className="services-photo" key={image}
+                      data-state={activeService === index ? 'active' : previousService === index ? 'previous' : 'idle'}
+                      aria-hidden={activeService !== index}>
+                      <div className="services-media">
+                        <Photo name={image} widths={[640, 1160]} sizes="(max-width: 767px) 90vw, 36vw"
+                          width="1160" height="773" loading="lazy" alt={imageAlt} />
+                      </div>
+                    </figure>
                   ))}
                 </div>
-                <div className="service-details">
-                  {services.map(({ name, description }, index) => (
-                    <div key={name} className="service-panel" id={'service-panel-' + index} role="tabpanel"
-                      tabIndex={activeService === index ? 0 : -1} aria-labelledby={'service-button-' + index}
-                      inert={activeService !== index} aria-hidden={activeService !== index}>
-                      <p>{description}</p>
+                <p className="services-count" aria-hidden="true">
+                  <span className="services-count-current" key={activeService}>{pad(activeService + 1)}</span>
+                  <span className="services-count-total">/ {pad(services.length)}</span>
+                </p>
+              </div>
+
+              <div className="service-list">
+                {services.map(({ name, description }, index) => {
+                  const open = activeService === index
+                  return (
+                    <div className="service-item" key={name} data-open={open} data-reveal="fade" style={delay(index * 90)}>
+                      <h3>
+                        <button id={'service-button-' + index} type="button" aria-expanded={open}
+                          aria-controls={'service-panel-' + index} onClick={() => chooseService(index)}>
+                          <span className="service-index" aria-hidden="true">{pad(index + 1)}</span>
+                          <span className="service-name">{name}</span>
+                          <span className="service-toggle" aria-hidden="true" />
+                        </button>
+                      </h3>
+                      <div className="service-panel" id={'service-panel-' + index} role="region"
+                        aria-labelledby={'service-button-' + index} inert={!open}>
+                        <div className="service-panel-inner">
+                          <p>{description}</p>
+                          <a className="text-link" href="#enquiry" onClick={(event) => enquire(event, 'Employer')}>
+                            Discuss a hiring need <Arrow />
+                          </a>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-                <a className="text-link" href="#enquiry" onClick={(event) => enquire(event, 'Employer')}>
-                  Discuss a hiring need <Arrow />
-                </a>
+                  )
+                })}
               </div>
             </div>
           </div>

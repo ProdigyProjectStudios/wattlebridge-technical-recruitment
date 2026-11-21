@@ -370,28 +370,58 @@ button.text-link { font-weight: 700; }
 
 .services { padding-block: var(--section-space); background: var(--mist); }
 .services-layout { display: grid; grid-template-columns: minmax(0, .82fr) minmax(0, 1.18fr); gap: clamp(40px, 8vw, 132px); align-items: center; }
-.services-visual { position: relative; aspect-ratio: 1.04; overflow: hidden; }
-.services-visual img { width: 100%; height: 100%; object-fit: cover; object-position: 61% 44%; }
-.service-list { position: relative; display: grid; grid-auto-rows: 1fr; border-top: 1px solid var(--rule-strong); }
-.service-list::before {
-  content: ""; position: absolute; top: 0; left: 0; height: calc(100% / var(--service-count)); width: 20px;
-  background: linear-gradient(var(--brass-text), var(--brass-text)) left center / 100% 3px no-repeat;
-  transform: translateY(calc(var(--active) * 100%)); transition: transform 420ms var(--ease-out);
-  pointer-events: none;
+.services-visual { position: relative; }
+.services-frame { position: relative; aspect-ratio: .92; overflow: hidden; background: #b7bdae; }
+.services-photo { position: absolute; inset: 0; clip-path: inset(100% 0 0 0); z-index: 0; }
+.services-photo[data-state="previous"] { clip-path: inset(0); z-index: 1; }
+.services-photo[data-state="active"] { clip-path: inset(0); z-index: 2; transition: clip-path 1000ms var(--ease-in-out); }
+.services-media { position: absolute; inset: 0; transform: scale(1.14); }
+.services-photo[data-state="previous"] .services-media { transform: none; }
+.services-photo[data-state="active"] .services-media { transform: none; transition: transform 1500ms var(--ease-out); }
+.services-media img { width: 100%; height: 100%; object-fit: cover; }
+.services-photo:nth-child(2) img { object-position: 40% 50%; }
+.services-count {
+  display: flex; align-items: baseline; gap: 8px; margin-top: 18px;
+  color: var(--forest); font-family: var(--font-display); font-variant-numeric: tabular-nums;
 }
-.service-list button {
-  padding: clamp(16px, 1.6vw, 26px) 4px clamp(16px, 1.6vw, 26px) 34px;
-  border: 0; border-bottom: 1px solid var(--rule-strong); background: transparent; text-align: left;
-  font-size: clamp(23px, 2.9vw, 48px); line-height: 1.1; letter-spacing: -.045em;
-  color: var(--muted); transition: color 220ms;
+.services-count-current { display: inline-block; font-size: 30px; font-weight: 400; letter-spacing: -.03em; animation: count-in 800ms var(--ease-out); }
+.services-count-total { font-size: 13px; letter-spacing: .1em; color: var(--muted); }
+@keyframes count-in { from { opacity: 0; transform: translateY(60%); } }
+
+.service-list { border-top: 1px solid var(--rule-strong); }
+.service-item { border-bottom: 1px solid var(--rule-strong); }
+.service-item h3 { font-size: clamp(26px, 2.9vw, 46px); font-weight: 700; line-height: 1.12; letter-spacing: -.025em; }
+.service-item button {
+  display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  width: 100%; padding: clamp(20px, 2.4vw, 32px) 0; border: 0; background: transparent;
+  color: inherit; font: inherit; letter-spacing: inherit; text-align: left;
 }
-.service-list button:is([aria-selected="true"], :hover, :focus-visible) { color: var(--forest-deep); }
-.service-list button:focus-visible { outline-offset: -3px; }
-.service-details { display: grid; margin: 24px 0 8px 34px; max-width: 46ch; }
-.service-panel { grid-area: 1 / 1; opacity: 1; transition: opacity 280ms ease; }
-.service-panel[aria-hidden="true"] { opacity: 0; pointer-events: none; }
+.service-index { align-self: start; padding-top: .55em; color: var(--brass-text); font-size: 12px; letter-spacing: .1em; font-variant-numeric: tabular-nums; }
+.service-name { transition: transform 600ms var(--ease-out), opacity 400ms; opacity: .58; }
+.service-item[data-open="true"] .service-name { opacity: 1; }
+.service-item button:hover .service-name, .service-item button:focus-visible .service-name { opacity: 1; transform: translateX(8px); }
+.service-item button:focus-visible { outline-offset: -2px; }
+.service-toggle {
+  position: relative; width: 44px; height: 44px; flex: none; border: 1px solid var(--rule-strong); border-radius: 50%;
+  transition: background-color 450ms var(--ease-out), border-color 450ms var(--ease-out), transform 600ms var(--ease-out);
+}
+.service-toggle::before, .service-toggle::after {
+  content: ""; position: absolute; top: 50%; left: 50%; width: 14px; height: 1.5px; margin: -.75px 0 0 -7px;
+  background: var(--forest); transition: transform 500ms var(--ease-out), background-color 450ms;
+}
+.service-toggle::after { transform: rotate(90deg); }
+.service-item[data-open="true"] .service-toggle { background: var(--forest); border-color: var(--forest); transform: rotate(180deg); }
+.service-item[data-open="true"] .service-toggle::before, .service-item[data-open="true"] .service-toggle::after { background: var(--ivory); }
+.service-item[data-open="true"] .service-toggle::after { transform: rotate(0); }
+.service-panel { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 700ms var(--ease-out); }
+.service-item[data-open="true"] .service-panel { grid-template-rows: 1fr; }
+.service-panel-inner {
+  min-height: 0; overflow: hidden; padding-left: 60px; max-width: 560px;
+  opacity: 0; transform: translateY(-8px); transition: opacity 400ms var(--ease-out), transform 600ms var(--ease-out);
+}
+.service-item[data-open="true"] .service-panel-inner { opacity: 1; transform: none; transition-delay: 150ms; }
 .service-panel p { font-size: 17px; }
-.service-index > a { margin-left: 34px; }
+.service-panel .text-link { margin: 10px 0 clamp(20px, 2.4vw, 30px); }
 
 /* ---------- Employers ---------- */
 
@@ -632,8 +662,8 @@ button.text-link { font-weight: 700; }
 
 .motion-on [data-reveal="mask"]:not(.is-in) { clip-path: inset(100% 0 0 0); }
 .motion-on [data-reveal="mask"].is-in { transition: clip-path 900ms var(--ease-out) var(--delay, 0ms); }
-.motion-on [data-reveal="mask"]:not(.is-in) .arch-media { transform: scale(1.07); }
-.motion-on [data-reveal="mask"].is-in .arch-media {
+.motion-on [data-reveal="mask"]:not(.is-in) :is(.arch-media, .services-frame) { transform: scale(1.07); }
+.motion-on [data-reveal="mask"].is-in :is(.arch-media, .services-frame) {
   transition: transform 1000ms var(--ease-out) var(--delay, 0ms);
 }
 
@@ -672,7 +702,10 @@ button.text-link { font-weight: 700; }
   .hero-belief { font-size: 18px; }
   .section-head { grid-template-columns: 1fr; grid-template-areas: "eyebrow" "title" "intro"; row-gap: 24px; }
   .section-head .section-intro { justify-self: start; }
-  .services-layout { grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 32px; }
+  .services-layout { grid-template-columns: 1fr; gap: 40px; }
+  .services-frame { aspect-ratio: 1.6; }
+  .services-visual { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: end; gap: 20px; }
+  .services-count { flex-direction: column; align-items: end; gap: 0; margin-top: 0; }
   .handoff figure { height: clamp(320px, 51vw, 460px); }
   .handoff-employer img { object-position: 22% 54%; }
   .employer-layout { grid-template-columns: minmax(0, 1.1fr) minmax(0, .85fr); }
@@ -722,7 +755,14 @@ button.text-link { font-weight: 700; }
   .candidate h2 { font-size: clamp(42px, 11.7vw, 68px); }
   .enquiry h2 { font-size: clamp(40px, 11.5vw, 64px); }
   .section-intro, .employer-copy p, .candidate-copy > p:not(.eyebrow), .enquiry-copy > p:not(.eyebrow, .test-guidance) { font-size: 16px; }
+  .services-frame { aspect-ratio: 1.3; }
+  .services-visual { grid-template-columns: 1fr; gap: 0; }
+  .services-count { flex-direction: row; align-items: baseline; gap: 8px; margin-top: 12px; }
+  .service-item h3 { font-size: clamp(25px, 7.4vw, 32px); }
+  .service-item button { grid-template-columns: 34px minmax(0, 1fr) auto; }
+  .service-panel-inner { padding-left: 42px; }
   .service-panel p { font-size: 16px; }
+  .service-toggle { width: 40px; height: 40px; }
 
   .employer-layout { grid-template-columns: 1fr; grid-template-areas: "eyebrow" "title" "copy"; }
   .employer-title { font-size: clamp(42px, 12vw, 68px); margin-bottom: 30px; }
@@ -749,8 +789,6 @@ button.text-link { font-weight: 700; }
   .candidate-layout { display: block; padding: 0; }
   .candidate h2 { margin: 16px 0 24px; }
   .candidate-copy { padding-right: 0; }
-  .services-layout { grid-template-columns: 1fr; gap: 24px; }
-  .services-visual { aspect-ratio: 1.65; }
   .arch-side img { object-position: 43% 20%; }
   .arch-main img { object-position: 40% 38%; }
   .place-media img { object-position: 60% 55%; }
