@@ -105,12 +105,18 @@ export default function App() {
     else requestAnimationFrame(go)
   }
 
-  function enquire(event: MouseEvent<HTMLAnchorElement>, choice: Audience) {
+  function enquire(event: MouseEvent<HTMLAnchorElement>, choice: Audience | '') {
     if (!followsInPlace(event)) return
     setAudience(choice)
     setEnquiryRequest((request) => request + 1)
     navigate(event)
   }
+
+  const enquiryHeading = {
+    Employer: ['Discuss a', 'hiring need'],
+    Candidate: ['Make a', 'candidate enquiry'],
+    '': ['Start a', 'conversation.'],
+  }[audience]
 
   function chooseService(index: number) {
     if (index === activeService) return
@@ -166,7 +172,7 @@ export default function App() {
             <div className="menu-body">
               <nav className="menu-navigation" aria-label="Primary">
                 {navigation.map(({ href, label, section }, index) => (
-                  <a key={href} href={href} onClick={navigate} style={{ '--i': index } as CSSProperties}
+                  <a key={href} href={href} onClick={href === '#enquiry' ? (event) => enquire(event, '') : navigate} style={{ '--i': index } as CSSProperties}
                     aria-current={currentSection === section ? 'location' : undefined}>
                     <span className="menu-index">{pad(index + 1)}</span>
                     <span className="menu-label"><span>{label}</span></span>
@@ -224,14 +230,14 @@ export default function App() {
               <figure className="arch arch-main" data-reveal="mask" style={delay(120)}>
                 <div className="arch-media depth-slow">
                   <Photo name="technical-collaboration-portrait" widths={[640, 960, 1280]}
-                    sizes="(max-width: 599px) 54vw, (max-width: 1023px) 52vw, 27vw" width="1280" height="1772"
+                    sizes="(max-width: 767px) 54vw, (max-width: 1023px) 31vw, 27vw" width="1280" height="1772"
                     fetchPriority="high" alt="Two colleagues reviewing work together in a sunlit office" />
                 </div>
               </figure>
               <figure className="arch arch-side" data-reveal="mask" style={delay(260)}>
                 <div className="arch-media depth-fast">
                   <Photo name="infrastructure-specialist-portrait" widths={[420, 640]}
-                    sizes="(max-width: 599px) 40vw, (max-width: 1023px) 38vw, 19vw" width="640" height="1024"
+                    sizes="(max-width: 767px) 40vw, (max-width: 1023px) 23vw, 19vw" width="640" height="1024"
                     fetchPriority="high" alt="A technical professional working at a server rack" />
                 </div>
               </figure>
@@ -416,8 +422,8 @@ export default function App() {
             <div className="enquiry-copy">
               <p className="eyebrow" data-reveal="fade"><span className="dot" aria-hidden="true" />Enquiries</p>
               <h2 id="enquiry" tabIndex={-1} className="display" data-reveal="lines">
-                <Line i={0}>Start a</Line>{' '}
-                <Line i={1} className="accent">conversation.</Line>
+                <Line i={0}>{enquiryHeading[0]}</Line>{' '}
+                <Line i={1} className="accent">{enquiryHeading[1]}</Line>
               </h2>
               <p data-reveal="fade" style={delay(140)}>
                 Tell us what you would like to discuss. Whether you are recruiting for your team or considering your
