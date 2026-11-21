@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties, type 
 import { business, services, workingSteps, type Audience } from './content'
 import EnquiryForm from './EnquiryForm'
 import { initMotion, scrollToTarget } from './motion'
-import { ArchLine, Arrow, ButtonArrow, Logo, Photo } from './visuals'
+import { Arrow, ButtonArrow, Logo, Photo } from './visuals'
 
 const navigation = [
   { href: '#services', label: 'Services', section: 'services' },
@@ -32,7 +32,6 @@ const pad = (value: number) => String(value).padStart(2, '0')
 export default function App() {
   const [menuOpen, setMenuOpen] = useState(false)
   const [activeService, setActiveService] = useState(0)
-  const [previousService, setPreviousService] = useState<number | null>(null)
   const [audience, setAudience] = useState<Audience | ''>('')
   const [enquiryRequest, setEnquiryRequest] = useState(0)
   const [currentSection, setCurrentSection] = useState('')
@@ -117,12 +116,6 @@ export default function App() {
     Candidate: ['Make a', 'candidate enquiry'],
     '': ['Start a', 'conversation.'],
   }[audience]
-
-  function chooseService(index: number) {
-    if (index === activeService) return
-    setPreviousService(activeService)
-    setActiveService(index)
-  }
 
   return (
     <>
@@ -237,7 +230,7 @@ export default function App() {
               <figure className="arch arch-side" data-reveal="mask" style={delay(260)}>
                 <div className="arch-media depth-fast">
                   <Photo name="infrastructure-specialist-portrait" widths={[420, 640]}
-                    sizes="(max-width: 767px) 40vw, (max-width: 1023px) 23vw, 19vw" width="640" height="1024"
+                    sizes="(max-width: 767px) 40vw, (max-width: 1023px) 23vw, 19vw" width="640" height="762"
                     fetchPriority="high" alt="A technical professional working at a server rack" />
                 </div>
               </figure>
@@ -261,50 +254,43 @@ export default function App() {
             </div>
 
             <div className="services-layout">
-              <div className="services-visual" data-reveal="mask">
-                <div className="services-frame" data-scroll>
-                  {services.map(({ image, imageAlt }, index) => (
-                    <figure className="services-photo" key={image}
-                      data-state={activeService === index ? 'active' : previousService === index ? 'previous' : 'idle'}
-                      aria-hidden={activeService !== index}>
-                      <div className="services-media">
-                        <Photo name={image} widths={[640, 1160]} sizes="(max-width: 767px) 90vw, 36vw"
-                          width="1160" height="773" loading="lazy" alt={imageAlt} />
-                      </div>
-                    </figure>
+              <figure className="services-visual" data-reveal="mask">
+                <Photo name="workplace-learning" widths={[640, 1160]} sizes="(max-width: 767px) 90vw, 39vw"
+                  width="1160" height="773" loading="lazy" alt="Colleagues discussing ideas at a whiteboard" />
+              </figure>
+              <div className="service-index">
+                <div className="service-list" role="tablist" aria-label="Recruitment services" aria-orientation="vertical"
+                  style={{ '--active': activeService, '--service-count': services.length } as CSSProperties}>
+                  {services.map(({ name }, index) => (
+                    <button key={name} type="button" role="tab" id={'service-button-' + index}
+                      aria-controls={'service-panel-' + index} aria-selected={activeService === index}
+                      tabIndex={activeService === index ? 0 : -1} onClick={() => setActiveService(index)}
+                      onKeyDown={(event) => {
+                        const destinations: Record<string, number> = {
+                          ArrowDown: (index + 1) % services.length,
+                          ArrowUp: (index + services.length - 1) % services.length,
+                          Home: 0, End: services.length - 1,
+                        }
+                        const next = destinations[event.key]
+                        if (next === undefined) return
+                        event.preventDefault()
+                        setActiveService(next)
+                        document.getElementById('service-button-' + next)?.focus()
+                      }}>{name}</button>
                   ))}
                 </div>
-                <p className="services-count" aria-hidden="true">
-                  <span className="services-count-current" key={activeService}>{pad(activeService + 1)}</span>
-                  <span className="services-count-total">/ {pad(services.length)}</span>
-                </p>
-              </div>
-
-              <div className="service-list">
-                {services.map(({ name, description }, index) => {
-                  const open = activeService === index
-                  return (
-                    <div className="service-item" key={name} data-open={open} data-reveal="fade" style={delay(index * 90)}>
-                      <h3>
-                        <button id={'service-button-' + index} type="button" aria-expanded={open}
-                          aria-controls={'service-panel-' + index} onClick={() => chooseService(index)}>
-                          <span className="service-index" aria-hidden="true">{pad(index + 1)}</span>
-                          <span className="service-name">{name}</span>
-                          <span className="service-toggle" aria-hidden="true" />
-                        </button>
-                      </h3>
-                      <div className="service-panel" id={'service-panel-' + index} role="region"
-                        aria-labelledby={'service-button-' + index} inert={!open}>
-                        <div className="service-panel-inner">
-                          <p>{description}</p>
-                          <a className="text-link" href="#enquiry" onClick={(event) => enquire(event, 'Employer')}>
-                            Discuss a hiring need <Arrow />
-                          </a>
-                        </div>
-                      </div>
+                <div className="service-details">
+                  {services.map(({ name, description }, index) => (
+                    <div key={name} className="service-panel" id={'service-panel-' + index} role="tabpanel"
+                      tabIndex={activeService === index ? 0 : -1} aria-labelledby={'service-button-' + index}
+                      inert={activeService !== index} aria-hidden={activeService !== index}>
+                      <p>{description}</p>
                     </div>
-                  )
-                })}
+                  ))}
+                </div>
+                <a className="text-link" href="#enquiry" onClick={(event) => enquire(event, 'Employer')}>
+                  Discuss a hiring need <Arrow />
+                </a>
               </div>
             </div>
           </div>
@@ -318,14 +304,6 @@ export default function App() {
               <Line i={0}>A clearer</Line>{' '}
               <Line i={1} className="accent">starting point.</Line>
             </h2>
-            <figure className="employer-photo" data-reveal="wipe">
-              <div className="employer-media depth-slow">
-                <Photo name="recruitment-discussion" widths={[640, 1160]}
-                  sizes="(max-width: 767px) calc(100vw - 40px), 52vw"
-                  width="1160" height="773" loading="lazy"
-                  alt="Two people discussing notes around a table" />
-              </div>
-            </figure>
             <div className="employer-copy">
               <p data-reveal="fade" style={delay(120)}>
                 A useful recruitment conversation begins with a clear brief. We discuss the responsibilities, team
@@ -356,9 +334,47 @@ export default function App() {
           </div>
         </section>
 
-        {/* ---------------- Place: ivory turns to forest ---------------- */}
-        <section className="place" aria-label="Perth, Western Australia">
-          <figure className="place-figure" data-scroll>
+        <div className="handoff" data-scroll>
+          <div className="frame handoff-stage">
+            <figure className="handoff-employer">
+              <Photo name="recruitment-discussion" widths={[640, 1160]} sizes="(max-width: 767px) 60vw, 42vw"
+                width="1160" height="773" loading="lazy" alt="Two people reviewing notes together at a table" />
+            </figure>
+            <figure className="handoff-candidate">
+              <Photo name="candidate-workspace" widths={[520, 1000]} sizes="(max-width: 767px) 65vw, 42vw"
+                width="1000" height="1250" loading="lazy" alt="A woman working at a laptop beside a window" />
+            </figure>
+          </div>
+        </div>
+
+        {/* ---------------- Candidates ---------------- */}
+        <section className="candidate" aria-labelledby="candidates" data-section="candidates">
+          <div className="frame candidate-layout">
+            <div className="candidate-title">
+              <p className="eyebrow eyebrow-light" data-reveal="fade"><span className="dot" aria-hidden="true" />For candidates</p>
+              <h2 id="candidates" tabIndex={-1} className="display" data-reveal="lines">
+                <Line i={0}>Considering</Line>{' '}
+                <Line i={1}>your next</Line>{' '}
+                <Line i={2} className="accent">technical role?</Line>
+              </h2>
+            </div>
+            <div className="candidate-copy">
+              <p data-reveal="fade" style={delay(160)}>
+                Tell us about your experience and the opportunities that interest you. We welcome conversations with
+                IT and technical professionals across Western Australia.
+              </p>
+              <div data-reveal="fade" style={delay(240)}>
+                <a className="button button-light" href="#enquiry" onClick={(event) => enquire(event, 'Candidate')}>
+                  Make a candidate enquiry <ButtonArrow />
+                </a>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ---------------- Perth skyline ---------------- */}
+        <section className="place" data-scroll aria-label="Perth, Western Australia">
+          <figure className="place-figure">
             <svg className="place-mask" aria-hidden="true" width="0" height="0">
               <defs><clipPath id="place-arches" clipPathUnits="objectBoundingBox">
                 <path data-place-arch d="M0,0H.501V1H0Z" />
@@ -380,40 +396,6 @@ export default function App() {
               </p>
             </figcaption>
           </figure>
-        </section>
-
-        {/* ---------------- Candidates ---------------- */}
-        <section className="candidate" aria-labelledby="candidates" data-section="candidates">
-          <div className="frame candidate-layout">
-            <div className="candidate-copy">
-              <p className="eyebrow eyebrow-light" data-reveal="fade"><span className="dot" aria-hidden="true" />For candidates</p>
-              <h2 id="candidates" tabIndex={-1} className="display" data-reveal="lines">
-                <Line i={0}>Considering</Line>{' '}
-                <Line i={1}>your next</Line>{' '}
-                <Line i={2} className="accent">technical role?</Line>
-              </h2>
-              <p data-reveal="fade" style={delay(160)}>
-                Tell us about your experience and the opportunities that interest you. We welcome conversations with
-                IT and technical professionals across Western Australia.
-              </p>
-              <div data-reveal="fade" style={delay(240)}>
-                <a className="button button-light" href="#enquiry" onClick={(event) => enquire(event, 'Candidate')}>
-                  Make a candidate enquiry <ButtonArrow />
-                </a>
-              </div>
-            </div>
-            <div className="candidate-art" data-scroll>
-              <div className="candidate-outline" data-reveal="draw" style={delay(200)}><ArchLine /></div>
-              <figure className="candidate-photo" data-reveal="mask">
-                <div className="candidate-media depth-slow">
-                  <Photo name="candidate-workspace" widths={[520, 1000]}
-                    sizes="(max-width: 767px) 78vw, 34vw"
-                    width="1000" height="1250" loading="lazy"
-                    alt="A woman working at a laptop beside a bright window" />
-                </div>
-              </figure>
-            </div>
-          </div>
         </section>
 
         {/* ---------------- Enquiry ---------------- */}

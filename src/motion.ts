@@ -3,7 +3,7 @@
  *
  * One small engine drives every effect on the page so timing stays coherent:
  * - [data-reveal] elements receive `.is-in` once, when they first enter the viewport.
- *   CSS owns the choreography (lines, fade, mask, wipe, rule, draw) using shared easing tokens.
+ *   CSS owns the choreography (lines, fade, mask, rule) using shared easing tokens.
  * - [data-scroll] elements receive a damped `--p` (0 → 1 while they cross the viewport).
  *   CSS maps it to restrained depth and the Perth arch opening. No React renders per frame.
  * - Anchor navigation uses an eased, interruptible scroll. Native wheel, touch and keyboard
@@ -20,6 +20,11 @@ export function prefersReducedMotion() {
 }
 
 const clamp = (value: number, min = 0, max = 1) => Math.min(max, Math.max(min, value))
+
+function smoothRange(value: number, start: number, end: number) {
+  const t = clamp((value - start) / (end - start))
+  return t * t * (3 - 2 * t)
+}
 
 let failsafe = 0
 
@@ -98,9 +103,13 @@ export function initMotion(): () => void {
     const tracked = new Map<HTMLElement, { value: number }>()
     let frame = 0
     const place = document.querySelector<HTMLElement>('.place-figure')
+    const placeSection = place?.closest<HTMLElement>('.place')
+    const handoff = document.querySelector<HTMLElement>('.handoff')
     const arches = place?.querySelectorAll<SVGPathElement>('[data-place-arch]')
     let placeWidth = 1, placeHeight = 1, placeInset = .29
-    let captionTimer = 0
+    let travel = 1
+    let lastArch = -1
+    let lastCaption = ''
     let imageReady = false
     let previousFrame = 0
 
@@ -108,15 +117,24 @@ export function initMotion(): () => void {
       if (!place) return
       placeWidth = place.clientWidth || 1
       placeHeight = place.clientHeight || 1
+      travel = window.innerHeight + (placeSection?.offsetHeight ?? placeHeight)
+      lastArch = -1
       placeInset = parseFloat(getComputedStyle(place).getPropertyValue('--arch-inset'))
     }
     measurePlace()
 
     const updatePlace = (progress: number) => {
       if (!place || !arches) return
-      const progressInRange = clamp((progress - .14) * 2.6)
-      // Ease into and out of the arch endpoints without changing their scroll range.
-      const k = progressInRange * progressInRange * (3 - 2 * progressInRange)
+      // The full photograph clears the bottom of the viewport at distance = placeHeight.
+      const distance = progress * travel
+      const k = smoothRange(distance, placeHeight * .22, placeHeight)
+      const caption = imageReady ? smoothRange(distance - placeHeight, 26, 130).toFixed(4) : '0'
+      if (caption !== lastCaption) {
+        place.style.setProperty('--caption', caption)
+        lastCaption = caption
+      }
+      if (k === lastArch) return
+      lastArch = k
       const edge = (1 - k) * placeInset
       // Both arches clip ONE stationary image. A subpixel overlap removes the centre seam.
       const gap = ((1 - k) * 8 - k * .5) / placeWidth
@@ -129,17 +147,6 @@ export function initMotion(): () => void {
         path.setAttribute('d', `M${x},1V${y + ry}Q${x},${y} ${x + rx},${y}H${x + width - rx}Q${x + width},${y} ${x + width},${y + ry}V1Z`)
       })
       place.classList.toggle('is-panorama', k === 1)
-      if (k < 1) {
-        clearTimeout(captionTimer)
-        captionTimer = 0
-        place.classList.remove('is-open')
-      } else if (imageReady && !captionTimer && !place.classList.contains('is-open')) {
-        // Let the complete panorama paint before beginning the separate text entrance.
-        captionTimer = window.setTimeout(() => {
-          place.classList.add('is-open')
-          captionTimer = 0
-        }, 160)
-      }
     }
 
     const measure = (el: HTMLElement) => {
@@ -162,15 +169,21 @@ export function initMotion(): () => void {
       let settling = false
       for (const [el, state] of tracked) {
         const target = measure(el)
-        const ease = el === place ? 1 - Math.exp(-elapsed / 160) : .14
+        // Match the portrait positions exactly when the reader reverses a gesture.
+        if (el === handoff) {
+          el.style.setProperty('--arrival', smoothRange(target, .10, .47).toFixed(4))
+          el.style.setProperty('--departure', smoothRange(target, .54, .77).toFixed(4))
+          continue
+        }
+        const ease = el === placeSection ? 1 - Math.exp(-elapsed / 85) : .14
         let next = state.value + (target - state.value) * ease
-        if (Math.abs(target - next) < (el === place ? 0.0002 : 0.0008)) next = target
+        if (Math.abs(target - next) < (el === placeSection ? 0.0002 : 0.0008)) next = target
         else settling = true
         if (next !== state.value || !el.style.getPropertyValue('--p')) {
           state.value = next
           el.style.setProperty('--p', next.toFixed(4))
         }
-        if (el === place) updatePlace(next)
+        if (el === placeSection) updatePlace(next)
       }
       if (settling) frame = requestAnimationFrame(tick)
     }
@@ -212,7 +225,6 @@ export function initMotion(): () => void {
       window.removeEventListener('scroll', kick)
       window.removeEventListener('resize', resize)
       cancelAnimationFrame(frame)
-      clearTimeout(captionTimer)
     })
   } catch {
     root.classList.remove('motion-on')

@@ -11,20 +11,14 @@ export const business = {
 export const services = [
   {
     name: 'Permanent recruitment',
-    image: 'workplace-learning',
-    imageAlt: 'Colleagues discussing ideas at a whiteboard',
     description: 'Build your team around the skills you need for the longer term.',
   },
   {
     name: 'Contract recruitment',
-    image: 'infrastructure-specialist',
-    imageAlt: 'A technical professional at a server rack',
     description: 'Find technical capability for a defined project or changing workload.',
   },
   {
     name: 'Recruitment planning',
-    image: 'planning-details',
-    imageAlt: 'Notes being written during a planning conversation',
     description: 'Clarify a role, its priorities and the experience a successful candidate will need.',
   },
 ]
